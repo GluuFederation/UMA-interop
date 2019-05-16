@@ -5,7 +5,7 @@ This demo is created to visualize how Gluu Gateway, an API Gateway which support
 
 Gluu Gateway acts as an UMA Resource Server (RS) and policy enforcement point (PEP), while the AS acts as the policy decision point (PDP). 
 
-Gluu Gateway is built on top of the Kong API Gateway, and thus it inherits all its functionalities for API rate limiting and more.  
+Gluu Gateway is built on top of the Kong API Gateway, and thus inherits all its functionalities for API rate limiting and more.  
  
 In this article, we show how to use Gluu Gateway with an existing Keycloak AS.
 
