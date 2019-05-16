@@ -1,13 +1,28 @@
 # Gluu Gateway - Keycloak Interoperation
 
 ## Description
-This demo is created to visualize how Gluu Gateway, an API Gateway which supports the use of UMA scopes for protection of RESTful resources, is interoperable with any compliant UMA Authorization Servers (AS). 
+This demo is created to show how [Gluu Gateway](https://gluu.org/docs/gg), an API Gateway which supports the use of UMA scopes for protection of RESTful resources, is interoperable with any standard UMA Authorization Servers (AS). 
 
-Gluu Gateway acts as an UMA Resource Server (RS) and policy enforcement point (PEP), while the AS acts as the policy decision point (PDP). 
-
-Gluu Gateway is built on top of the Kong API Gateway, and thus inherits all its functionalities for API rate limiting and more.  
+Gluu Gateway acts as an UMA Resource Server (RS) and policy enforcement point (PEP) for scopes and policies stored in the AS, which acts as the policy decision point (PDP).  
  
 In this article, we show how to use Gluu Gateway with an existing Keycloak AS.
+
+## Overview of Results
+What was tested was:
+
+* Dynamic Client Registration
+* Protection API
+* Permission API
+* UMA Grant Type
+* Introspection Endpoint
+
+Gluu Gateway was was able to:
+
+* Dynamically register clients in Keycloak
+* Manage protected resources through the Protection API
+* Issue permission tickets through the Permission API
+* Obtain an RPT using the UMA Grant Type
+* Introspect the RPT, using our introspection endpoint, and check the granted permissions
 
 ## Architecture
 ![](interop.png)
