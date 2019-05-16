@@ -1,11 +1,13 @@
 # Gluu Gateway - Keycloak Interoperation
 
 ## Description
-This interoperation demo is created to visualize the flexibility of Gluu Gateway, which acts as an UMA Resource Server (RS), to work with any compliant UMA Authorization Servers (AS). 
+This demo is created to visualize how Gluu Gateway, an API Gateway which supports the use of UMA scopes for protection of RESTful resources, is interoperable with any compliant UMA Authorization Servers (AS). 
 
-Gluu Gateway is an API gateway which supports UMA for protection of RESTful resources. Gluu Gateway is built on top of the Kong API Gateway and thus it inherits all its functionalities for rate limiting and more.  
+Gluu Gateway acts as an UMA Resource Server (RS) and policy enforcement point (PEP), while the AS acts as the policy decision point (PDP). 
+
+Gluu Gateway is built on top of the Kong API Gateway, and thus it inherits all its functionalities for API rate limiting and more.  
  
-In this article, I show how to use Gluu Gateway with an existing Keycloak AS.
+In this article, we show how to use Gluu Gateway with an existing Keycloak AS.
 
 ## Architecture
 ![](interop.png)
