@@ -21,6 +21,8 @@ host = is_claim_in_url()
 handle_claims_gathering_response()
 
 # Client calls API without RPT token
+as_uri = as_uri()
+
 if not is_ticket_in_url():
     (as_uri, ticket) = get_as_and_ticket(host=host)
 
