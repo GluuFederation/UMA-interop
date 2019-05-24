@@ -53,6 +53,7 @@ IDENTOS: Client uses basic client credentials directly with RPT endpoint
 (UMA Grant 3.3.1 Client Request to Authorization Server for RPT)
 
 GLUU: body includes ticket & "oxd_id"
+
 IDENTOS: body includes ticket & "grant_type"
 
 
@@ -61,6 +62,7 @@ IDENTOS: body includes ticket & "grant_type"
 (UMA Grant 3.3.6 Authorization Server Response to Client on Authorization Failure)
 
 GLUU: client can use the redirect_user uri directly without other processing (guessing this is just for demo?)
+
 IDENTOS: returns the base url (same as the value in the well-known right now) without any params
 
 
@@ -73,6 +75,7 @@ IDENTOS: returns the base url (same as the value in the well-known right now) wi
 #### Client->RS resource request
 
 GLUU: client requests against the gluu-gateway and must include downstream Host param (I think?)
+
 IDENTOS: no Host required, no knowledge of RS internals
 
 
