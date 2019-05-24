@@ -44,8 +44,8 @@ Client->AS: few differences (client authentication, rpt request and needs_info,r
 
 #### Client authentication to AS
 
-GLUU: Client must get access token (called PAT?) before using the rpt endpoint
-IDENTOS: Client uses client credentials directly with rpt endpoint
+GLUU: Client must get an OAuth access token (using Client Credential Grant) before calling the RPT endpoint. This is because Gluu encourages clients to use private key authentication at the token endpoint, which cannot be accomplished via basic authentication.
+IDENTOS: Client uses basic client credentials directly with RPT endpoint
 
 
 #### RPT request
