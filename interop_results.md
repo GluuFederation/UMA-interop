@@ -11,7 +11,7 @@ What was tested was:
 * UMA Grant Type
 * Introspection Endpoint
 
-Gluu Gateway was was able to:
+Gluu Gateway was able to:
 
 * Dynamically register clients in Keycloak
 * Manage protected resources through the Protection API
