@@ -24,14 +24,20 @@ handle_claims_gathering_response()
 as_uri = as_uri()
 
 if not is_ticket_in_url():
-    (as_uri, ticket) = get_as_and_ticket(host=host)
+    as_uri, ticket, _ = tokenless_resource_request(host=host)
 
 # Get Permission access token
 # (remove. this is RS->AS, performed by RS internally in call above: get_as_and_ticket)
-# access_token = get_permission_access_token_fpx(as_uri)
+
+def client_basic_header(cid, cs): 
+    return "Basic %s" % base64.b64encode("%s:%s" % (cid, cs))
+
+client_authz=client_basic_header(client_id(), client_secret())
+if ce_url():
+    client_authz = "Bearer " + get_permission_access_token()
 
 # Client calls AS UMA /token endpoint with permission ticket and client credentials
-need_info, token, redirect_url, ticket_two = get_rpt_fpx(as_uri, ticket)
+need_info, token, redirect_url, ticket_two = get_rpt(as_uri, client_authz, ticket)
 
 # Client calls API Gateway with RPT token
 if not need_info:
@@ -41,6 +47,6 @@ if not need_info:
 # AS returns needs_info with claims gathering URI, which the user should
 # put in his browser. Link shorter would be nice if the user has to type it in.
 if need_info:
-    display_redirect_link_fpx(redirect_url, ticket_two)
+    display_redirect_link(redirect_url, ticket_two)
 
 display_footer()
