@@ -1,8 +1,9 @@
 import cgi
 
 
+SELECTED_DEMO="https://idnserver.fpe.dev.identos.ca"
 
-DEMOS = {
+DEMO_SETTINGS = {
 	"https://gluu.local.org:8553": {
 		"as_uri": "https://gluu.local.org:8553",
 		"pat_endpoint":"get-client-token",
@@ -38,20 +39,19 @@ DEMOS = {
 		"rs_url": "https://rs-moh.fpe.dev.identos.ca",
 		"api_path": "api/immunization",
 
-		"host_with_claims" 	: "rs-moh.fpe.dev.identos.ca",
-		"host_without_claims" : "rs-moh.fpe.dev.identos.ca"		
+		"rs_host":  "rs-moh.fpe.dev.identos.ca",
 	}
 
 }
 
-SELECTED_CONFIG="https://idnserver.fpe.dev.identos.ca"
 
 
-client_settings=DEMOS[SELECTED_CONFIG]
+client_settings=DEMO_SETTINGS[SELECTED_DEMO]
 
 # RS CONFIG
 def rs_url():
 	return client_settings["rs_url"]
+
 
 def api_path():
 	return client_settings["api_path"]
@@ -60,13 +60,13 @@ def host_with_claims():
 	try:
 		return client_settings["host_with_claims"]
 	except KeyError:
-		return rs_url()
+		return client_settings["rs_host"]
 
 def host_without_claims():
 	try:
 		return client_settings["host_without_claims"]
 	except KeyError:
-		return rs_url()	
+		return client_settings["rs_host"]	
 
 
 
