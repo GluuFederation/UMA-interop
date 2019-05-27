@@ -46,6 +46,7 @@ DEMOS = {
 
 SELECTED_CONFIG="https://idnserver.fpe.dev.identos.ca"
 
+
 client_settings=DEMOS[SELECTED_CONFIG]
 
 # RS CONFIG
@@ -88,7 +89,11 @@ def claims_redirect_url():
 
 
 def ce_url ():
-	return client_settings["ce_url "]
+	try:
+		return client_settings["ce_url"]
+	except KeyError:
+		return False	
+
 def ce_token_path():
 	return client_settings["ce_token_path"] 
 def client_oxd_id ():

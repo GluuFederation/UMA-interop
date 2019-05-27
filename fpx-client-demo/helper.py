@@ -100,7 +100,7 @@ def parse_www_authenticate(www_authenticate):
 def tokenless_resource_request(host):
     headers = {"Host": host}
     response = requests.get(("%s/%s" % (rs_url(), api_path())), headers)    
-    
+
     display_action_name("Client calls RS API without RPT token")
     display_response(response, "")
 
@@ -167,7 +167,7 @@ def display_redirect_link(redirect_url, ticket):
     display_url(full_claim_redirectUrl)
 
 
-def call_gg_rpt(host, rpt):
+def rpt_resource_request(host, rpt):
     response = requests.get(("%s/%s" % (rs_url(), api_path())),
                             headers={"Host": host, "Authorization": "Bearer %s" % rpt})
     display_action_name("Client calls RS API with RPT token.")
