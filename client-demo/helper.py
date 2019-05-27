@@ -151,7 +151,7 @@ def display_redirect_link(redirect_url, ticket):
     # inspect the query string to ensure required values are set
     url_components = urlparse.urlparse(redirect_url)
 
-    redirect_params = urlparse.parse_qs(url_components.query)
+    redirect_params = dict(urlparse.parse_qsl(url_components.query))
     redirect_params.setdefault("state", "hardcodedstate")
     redirect_params.setdefault("ticket", ticket)
     redirect_params.setdefault("claims_redirect_uri", claims_redirect_url())
