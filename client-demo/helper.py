@@ -2,6 +2,7 @@ import requests
 import json
 import base64
 from urllib import urlencode
+import urlparse 
 
 from config import *
 
@@ -35,6 +36,9 @@ def display_footer():
 
 def display_action_name(name):
     print '''<br/><div class="card"><div class="card-body"><h3 class="text-success">%s</h3></div></div>''' % name
+
+def display_url(url):
+    print '''<div class="card"><div class="card-body">Click on Below URL <br/><a href="%s">%s</a></div></div>''' % (url, url)
 
 
 def display_response(response, request):
@@ -82,32 +86,36 @@ def display_response(response, request):
         response_body=response_json
     )
 
-
-def get_as_and_ticket(host):
-    response = requests.get(("%s/%s" % (gg_proxy_url, api_path)), headers={"Host": host})    
-    display_action_name("Client calls RS API without RPT token")
-    display_response(response, "")
-
-    # expect WWW-Authenticate to have the form "UMA realm=a, ticket=b, as_uri=c" 
-    www_authenticate = response.headers["WWW-Authenticate"].lstrip()
-    before, _, after = www_authenticate.partition("UMA")
+def parse_www_authenticate(www_authenticate):
+    # expect WWW-Authenticate to have the form "UMA realm=a, ticket=b, as_uri=c"     
+    before, _, after = www_authenticate.lstrip().partition("UMA")
     if len(after) == 0:
         return ("", "")
 
     parts = [x.lstrip().split("=") for x in after.split(",")]
     output = {x[0]:x[1].replace("\"", "") for x in parts}
-    print(output)
+    return output
 
-    return (output["as_uri"],output["ticket"])
-#    return response.headers["WWW-Authenticate"].split(",")[3].split("=")[1].replace("\"", "")
+
+def tokenless_resource_request(host):
+    headers = {"Host": host}
+    response = requests.get(("%s/%s" % (rs_url(), api_path())), headers)    
+
+    display_action_name("Client calls RS API without RPT token")
+    display_response(response, "")
+
+    www_authenticate = response.headers["WWW-Authenticate"].lstrip()
+    output = parse_www_authenticate(www_authenticate)
+
+    return output["as_uri"], output["ticket"], output["realm"]
 
 
 def get_permission_access_token():
-    body = {"client_id": client_id,
-            "client_secret": client_secret,
-            "op_host": ce_url,
+    body = {"client_id": client_id(),
+            "client_secret": client_secret(),
+            "op_host": ce_url(),
             "scope": ["oxd", "openid"]}
-    response = requests.post(("%s/%s" % (oxd_host, pat_endpoint)),
+    response = requests.post(("%s/%s" % (as_uri(), pat_endpoint())),
                              headers={"Content-Type": "application/json"},
                              json=body,
                              verify=False)
@@ -115,77 +123,52 @@ def get_permission_access_token():
     # display_response(response, body)
     return response.json()['access_token']
 
-def get_permission_access_token_fpx(as_uri):
-    body = {"client_id": rs_client_id,
-            "client_secret": rs_client_secret,
-            "scope": "uma_protection",
-            "grant_type": "client_credentials"}
-
-    response = requests.post(("%s/%s" % (as_uri, pat_endpoint)),
-                             headers={"Content-Type": "application/json", 
-                             "Authorization": client_basic_header(rs_client_id, rs_client_secret)},
-                             json=body,
-                             verify=False)
-    display_action_name("?. Authenticating rs client in fpx-server")
-    display_response(response, body)
-    return response.json()['access_token']
 
 
-def client_basic_header(cid, cs): 
-    return "Basic %s" % base64.b64encode("%s:%s" % (cid, cs))
 
-def get_rpt_fpx(as_uri, ticket):
-    body = {"grant_type": "urn:ietf:params:oauth:grant-type:uma-ticket",
-            "ticket": ticket}
 
-    response = requests.post(("%s/%s" % (as_uri, rpt_endpoint)),
-                             headers={"Content-Type": "application/json",
-                                      "Authorization": client_basic_header(client_id, client_secret)},
-                             json=body,
-                             verify=False)
-    display_action_name("Client calls AS UMA /token endpoint with permission ticket and client credentials")
-    display_response(response, body)
-
-    if 'error' in response.json() and response.json()['error'] == "need_info":
-        return True, "", response.json()['redirect_user'], response.json()['ticket']
-    else:
-        return False, response.json()['access_token'], "", ""
-
-def get_rpt(access_token, ticket):
-    body = {"oxd_id": client_oxd_id,
+def get_rpt(as_uri, authorization, ticket):
+    body = {"oxd_id": client_oxd_id(),
+            "grant_type": "urn:ietf:params:oauth:grant-type:uma-ticket",    
             "ticket": ticket}
     
-    response = requests.post(("%s/%s" % (oxd_host, rpt_endpoint)),
+    response = requests.post(("%s/%s" % (as_uri, rpt_endpoint())),
                              headers={"Content-Type": "application/json",
-                                      "Authorization": "Bearer " + access_token},
+                                      "Authorization": authorization},
                              json=body,
                              verify=False)
     display_action_name("Client calls AS UMA /token endpoint with permission ticket and client credentials")
     display_response(response, body)
 
     if 'error' in response.json() and response.json()['error'] == "need_info":
-        return True, "", response.json()['redirect_user'], ""
+        return True, "", response.json().get('redirect_user'), response.json().get("ticket")
     else:
         return False, response.json()['access_token'], "", ""
 
-def display_redirect_link(redirect_url):
-    full_claim_redirectUrl = "%s&claims_redirect_uri=%s" % (redirect_url, claims_redirect_url)    
+
+
+def display_redirect_link(redirect_url, ticket):
+    # inspect the query string to ensure required values are set
+    url_components = urlparse.urlparse(redirect_url)
+
+    redirect_params = dict(urlparse.parse_qsl(url_components.query))
+    redirect_params.setdefault("state", "hardcodedstate")
+    redirect_params.setdefault("ticket", ticket)
+    redirect_params.setdefault("claims_redirect_uri", claims_redirect_url())
+    redirect_params.setdefault("client_id" , client_id())
+
+    url_parts = list(url_components)
+    url_parts[4] = urlencode(redirect_params) # 4= query
+
+    # rebuild url with updated query    
+    full_claim_redirectUrl = urlparse.urlunparse(url_parts)
+
     display_action_name("4. Claims gathering url")
-    print '''<div class="card"><div class="card-body">Click on Below URL <br/><a href="%s">%s</a></div></div>''' % (full_claim_redirectUrl, full_claim_redirectUrl)
-
-def display_redirect_link_fpx(redirect_url, ticket):
-    redirect_params= {"state": "hardcodedstate",
-                        "ticket": ticket,
-                        "claims_redirect_uri": claims_redirect_url,
-                        "client_id" : client_id }
-
-    full_claim_redirectUrl = "%s?%s" % (redirect_url, urlencode(redirect_params))
-    display_action_name("4. Claims gathering url")
-    print '''<div class="card"><div class="card-body">Click on Below URL <br/><a href="%s">%s</a></div></div>''' % (full_claim_redirectUrl, full_claim_redirectUrl)
+    display_url(full_claim_redirectUrl)
 
 
-def call_gg_rpt(host, rpt):
-    response = requests.get(("%s/%s" % (gg_proxy_url, api_path)),
+def rpt_resource_request(host, rpt):
+    response = requests.get(("%s/%s" % (rs_url(), api_path())),
                             headers={"Host": host, "Authorization": "Bearer %s" % rpt})
     display_action_name("Client calls RS API with RPT token.")
     display_response(response, "")
