@@ -1,8 +1,3 @@
-Modified the demo UMA client from https://github.com/GluuFederation/gluu-gateway/tree/master/gg-demo to interop with the Identos products
+Follow the Gluu Docs for Gluu [UMA tutorial](https://github.com/GluuFederation/docs-gg-prod/blob/4.0/docs/source/uma-tutorial.md) and [demo code](https://github.com/GluuFederation/gluu-gateway/tree/version_4.0/gg-demo).
 
-
-To run:
-$ make
-
-
-
+Code demo for [Identos products](./identos)
