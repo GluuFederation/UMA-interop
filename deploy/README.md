@@ -1,1 +1,1 @@
-Please follow the [Gluu Gateway Installation docs](https://github.com/GluuFederation/docs-gg-prod/blob/4.0/docs/source/installation.md) for Gluu Gateway installation and setup.
+Please follow the [Gluu Gateway Installation docs](https://gluu.org/docs/gg/4.0/installation/) for Gluu Gateway installation and setup.
